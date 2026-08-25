@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Globe Connect - Modern Country Visualization</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* Colors */
+        --bg-deep: #050511;
+        --bg-card: rgba(22, 22, 40, 0.6);
+        --bg-card-hover: rgba(30, 30, 50, 0.7);
+        --primary-accent: #00f2fe; /* Cyan */
+        --primary-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+        --secondary-accent: #7d44fa; /* Electric Purple */
+        --secondary-gradient: linear-gradient(135deg, #7d44fa 0%, #eb00ff 100%);
+        
+        /* Borders */
+        --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+        --glass-border-hover: 1px solid rgba(255, 255, 255, 0.2);
+        
+        /* Text */
+        --text-primary: #ffffff;
+        --text-secondary: #a0a0b0;
+        --text-muted: #606070;
+        
+        /* Shadows */
+        --glow-primary: 0 0 20px rgba(0, 242, 254, 0.15);
+        --glow-secondary: 0 0 20px rgba(125, 68, 250, 0.15);
+        
+        /* Layout */
+        --radius-sm: 8px;
+        --radius-md: 16px;
+        --radius-lg: 24px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        background-color: var(--bg-deep);
+        background-image: 
+            radial-gradient(circle at 10% 20%, rgba(125, 68, 250, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, rgba(0, 242, 254, 0.1) 0%, transparent 40%);
+        color: var(--text-primary);
+        line-height: 1.6;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Container & Grid */
+      .container {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+      
+      @media (max-width: 768px) {
+        .container { padding: 1rem; }
+      }
+
+      .main-grid {
+        display: grid;
+        grid-template-columns: 1.8fr 1fr;
+        gap: 2rem;
+        align-items: start;
+      }
+
+      /* Header */
+      .header {
+        text-align: center;
+        padding: 4rem 0 2rem;
+        position: relative;
+      }
+      
+      h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: var(--primary-gradient);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.03em;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 10px 30px rgba(0, 242, 254, 0.2);
+      }
+      
+      .subtitle {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        font-weight: 300;
+      }
+
+      /* Glassmorphism Cards */
+      .controls, .globe-container, .comparison-card, 
+      .world-clock, .statistics-panel, .info-panel,
+      .currency-panel, .timezone-converter,
+      .quick-facts,
+      .calculator-widget {
+        background: var(--bg-card);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-lg); /* Actually let's use premium shadows too if needed? No, let's stick to simple fix first */
+        /* Ensure no overflow issues here either */
+        height: auto;
+        transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .globe-container {
+        padding: 0; /* Remove padding for globe */
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.05);
+      }
+
+      @media (min-width: 1024px) {
+        .globe-container:hover, 
+        .comparison-card:hover, 
+        .statistics-panel:hover {
+            border: var(--glass-border-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+        }
+      }
+
+      /* Controls Grid */
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      
+      @media (max-width: 480px) {
+          .controls { grid-template-columns: 1fr; }
+      }
+
+      .control-group label {
+        display: block;
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      /* Search & Inputs */
+      .search-wrapper { position: relative; display: flex; flex-direction: column; gap: 0.5rem; }
+      
+      input, select, .currency-input {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-sm);
+        padding: 0.8rem 1rem;
+        color: white;
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: 0.3s;
+      }
+      
+      input:focus, select:focus {
+        outline: none;
+        border-color: var(--primary-accent);
+        box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.1);
+        background: rgba(0, 0, 0, 0.3);
+      }
+
+      /* Buttons */
+      button {
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 600;
+        transition: 0.3s;
+        border: none;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+      }
+      
+      .action-btn, .toggle-btn, .refresh-btn, .reset-btn, .swap-btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        background: rgba(255,255,255,0.05);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      
+      .action-btn:hover, .toggle-btn:hover, .refresh-btn:hover, .reset-btn:hover, .swap-btn:hover {
+        background: rgba(255,255,255,0.1);
+        border-color: var(--primary-accent);
+        transform: translateY(-2px);
+      }
+
+      .favorite-btn {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+          padding: 0.5rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 1.25rem;
+          margin-top: 0.5rem; /* Add spacing if stacked */
+          width: 100%; /* Make it full width if in flex column */
+      }
+
+      .favorite-btn:hover {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: var(--primary-accent);
+      }
+      
+      .favorite-btn.active {
+        background: rgba(255, 215, 0, 0.2);
+        border-color: rgba(255, 215, 0, 0.5);
+      }
+
+      /* Specific Layout Fixes for Overlaps */
+      .comparison-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      @media (max-width: 768px) {
+        .comparison-cards { grid-template-columns: 1fr; }
+        .main-grid { grid-template-columns: 1fr; }
+      }
+
+      .comparison-card {
+        flex: 1;
+        background: var(--bg-card);
+        border: var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+        backdrop-filter: blur(12px);
+        box-shadow: var(--shadow-lg);
+        margin-bottom: 2rem;
+        height: auto;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        /* overflow: hidden; Removed to allow content to expand */
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        padding-bottom: 1rem;
+      }
+
+      /* FIXED ICON SIZING */
+      .card-flag, .clock-flag, .currency-flag {
+        font-size: 2rem; /* Consistent size */
+        line-height: 1;
+        display: inline-block;
+        width: 2.5rem; /* Fixed width container */
+        text-align: center;
+      }
+      
+      /* Image icons restriction */
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+      
+      .weather-info img {
+        width: 40px; /* Fixed weather icon size */
+        height: 40px;
+        object-fit: contain;
+      }
+
+      /* Typography Hierarchy */
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: white;
+      }
+
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+        font-size: 0.9rem;
+      }
+
+      .detail-key { color: var(--text-secondary); }
+      .detail-value { font-weight: 600; color: white; text-align: right; }
+
+      /* Stat Grid */
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .stat-item {
+        background: rgba(255,255,255,0.03);
+        padding: 1rem;
+        border-radius: var(--radius-sm);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.5rem;
+      }
+
+      .stat-icon { font-size: 1.5rem; margin-bottom: 0.2rem; }
+      .stat-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; }
+      .stat-value { font-size: 1.1rem; font-weight: 700; color: var(--primary-accent); }
+
+      /* Flight Info */
+      .flight-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      
+      .flight-detail {
+        background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+        padding: 1rem;
+        border-radius: var(--radius-md);
+        text-align: center;
+      }
+
+      .detail-label { display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+      .detail-value { font-size: 1.1rem; font-weight: 700; color: var(--secondary-accent); }
+
+      /* Currency */
+      .exchange-arrow {
+        font-size: 1.5rem;
+        color: var(--primary-accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Globe */
+      #globeViz {
+        width: 100%;
+        height: 600px; /* Fixed height for consistency */
+        background: radial-gradient(circle at center, #1a1a2e 0%, #050511 100%);
+      }
+
+      /* Link Styling */
+      a { color: var(--primary-accent); text-decoration: none; transition: 0.3s; border-bottom: 1px dashed transparent;}
+      a:hover { border-bottom-color: var(--primary-accent); text-shadow: 0 0 10px rgba(0,242,254,0.4); }
+
+      /* Footer / Legend */
+      .legend { display: flex; justify-content: center; gap: 2rem; padding: 1rem; margin-top: 1rem;}
+      .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-secondary); }
+      .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+      /* Responsive Adjustments */
+      @media(max-width: 1024px) {
+        .right-column { position: static; max-height: none; }
+      }
+      
+      /* Toast */
+      .toast {
+        background: rgba(20, 20, 35, 0.95);
+        border: 1px solid var(--primary-accent);
+        color: white;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      }
+      
+      /* Scrollbar */
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: var(--bg-deep); }
+      ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+      
+      /* Prevent layout shift on load */
+      .select-wrapper::after { color: var(--primary-accent); }
+
+      /* Currency Converter Styling (Restored) */
+      .currency-header {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        background: var(--secondary-gradient);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .currency-converter {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 2rem;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+
+      .currency-input-group {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+      }
+
+      .currency-input-group:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .currency-flag {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      }
+
+      .currency-input {
+        width: 100%;
+        max-width: 200px;
+        text-align: center;
+        font-size: 1.25rem;
+        font-weight: 600;
+        padding: 0.75rem;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+      }
+
+      .currency-input:focus {
+        outline: none;
+        border-color: var(--primary-accent);
+        box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.1);
+      }
+
+      .currency-code {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-top: 0.5rem;
+        letter-spacing: 0.05em;
+      }
+
+      .currency-name {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-top: 0.25rem;
+      }
+
+      .currency-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .currency-detail-box {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .currency-detail-box:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .exchange-rate {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        background: rgba(0, 242, 254, 0.1);
+        border: 1px solid rgba(0, 242, 254, 0.2);
+        border-radius: 8px;
+        color: var(--primary-accent);
+      }
+
+      .refresh-btn {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+        margin-top: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+      }
+
+      .refresh-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .loading {
+        text-align: center;
+        color: var(--text-muted);
+        font-style: italic;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .loading::before {
+        content: "⟳";
+        animation: spin 1s linear infinite;
+      }
+
+      /* Comparison Table Styles */
+      .comparison-table-section {
+        background: var(--bg-card);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .table-container {
+        overflow-x: auto;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+      }
+
+      .comparison-table th {
+        background: rgba(255, 255, 255, 0.05);
+        text-align: left;
+        padding: 1rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .comparison-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .comparison-table tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .btn-sm {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+      }
+
+      .btn-primary {
+        background: var(--primary-accent);
+        color: var(--bg-deep);
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .btn-outline {
+        background: transparent;
+        color: var(--text-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+        font-style: italic;
+      }
+
+      .remove-btn {
+        background: rgba(255, 68, 68, 0.1);
+        color: #ff4444;
+        border: 1px solid rgba(255, 68, 68, 0.2);
+        border-radius: 4px;
+        padding: 0.25rem 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .remove-btn:hover {
+        background: rgba(255, 68, 68, 0.2);
+      }
+
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      /* Chart Container */
+      .currency-chart-container {
+        background: rgba(0,0,0,0.3) !important; /* Override inline styles */
+        border: 1px solid rgba(255,255,255,0.05) !important;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Globe Connect</h1>
+        <p class="subtitle">Explore global connections in real-time</p>
+      </div>
+
+      <div class="controls">
+        <div class="control-group">
+          <label for="fromCountry">From Country</label>
+          <div class="search-wrapper">
+            <input
+              type="text"
+              id="fromSearch"
+              class="country-search"
+              placeholder="Search country..."
+              aria-label="Search from country"
+            />
+            <div class="select-wrapper">
+              <select
+                id="fromCountry"
+                aria-label="Select source country"
+              ></select>
+            </div>
+            <button
+              class="favorite-btn"
+              id="fromFavorite"
+              title="Add to favorites"
+              aria-label="Favorite from country"
+            >
+              ⭐
+            </button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="toCountry">To Country</label>
+          <div class="search-wrapper">
+            <input
+              type="text"
+              id="toSearch"
+              class="country-search"
+              placeholder="Search country..."
+              aria-label="Search to country"
+            />
+            <div class="select-wrapper">
+              <select
+                id="toCountry"
+                aria-label="Select destination country"
+              ></select>
+            </div>
+            <button
+              class="favorite-btn"
+              id="toFavorite"
+              title="Add to favorites"
+              aria-label="Favorite to country"
+            >
+              ⭐
+            </button>
+          </div>
+        </div>
+
+        <div class="control-actions">
+          <button id="toggleView" class="toggle-btn">🌙 Switch to Day</button>
+          <button
+            id="swapCountries"
+            class="swap-btn"
+            title="Swap countries"
+            aria-label="Swap from and to countries"
+          >
+            ⇄
+          </button>
+          <button
+            id="resetView"
+            class="reset-btn"
+            title="Reset view"
+            aria-label="Reset globe view"
+          >
+            🔄 Reset
+          </button>
+        </div>
+
+        <div
+          class="favorites-section"
+          id="favoritesSection"
+          style="display: none"
+        >
+          <label>Quick Access</label>
+          <div id="favoritesList" class="favorites-list"></div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="left-column">
+          <div class="globe-container">
+            <div id="globeViz"></div>
+          </div>
+
+          <div class="comparison-cards">
+            <div class="comparison-card" id="fromCard">
+              <div class="card-header">
+                <span class="card-flag" id="fromCardFlag">🌍</span>
+                <span class="card-title" id="fromCardTitle"
+                  >Source Country</span
+                >
+              </div>
+              <div class="card-details" id="fromCardDetails">
+                <div class="detail-row">
+                  <span class="detail-key">Capital</span>
+                  <span class="detail-value" id="fromCardCapital">-</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-key">Population</span>
+                  <span class="detail-value" id="fromCardPopulation">-</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-key">Continent</span>
+                  <span class="detail-value" id="fromCardContinent">-</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-key">Timezone</span>
+                  <span class="detail-value" id="fromCardTimezone">-</span>
+                </div>
+                <div class="detail-row" style="margin-top: 1rem; text-align: center;">
+                    <a href="#" id="fromWikiLink" target="_blank" style="color: var(--accent-color); text-decoration: none; font-size: 0.875rem; font-weight: 500;">📖 Learn More on Wikipedia</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="comparison-card" id="toCard">
+              <div class="card-header">
+                <span class="card-flag" id="toCardFlag">🌍</span>
+                <span class="card-title" id="toCardTitle"
+                  >Destination Country</span
+                >
+              </div>
+              <div class="card-details" id="toCardDetails">
+                <div class="detail-row">
+                  <span class="detail-key">Capital</span>
+                  <span class="detail-value" id="toCardCapital">-</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-key">Population</span>
+                  <span class="detail-value" id="toCardPopulation">-</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-key">Continent</span>
+                  <span class="detail-value" id="toCardContinent">-</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-key">Timezone</span>
+                  <span class="detail-value" id="toCardTimezone">-</span>
+                </div>
+                <div class="detail-row" style="margin-top: 1rem; text-align: center;">
+                    <a href="#" id="toWikiLink" target="_blank" style="color: var(--accent-color); text-decoration: none; font-size: 0.875rem; font-weight: 500;">📖 Learn More on Wikipedia</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="right-column">
+          <div class="world-clock">
+            <div class="mini-section-title">🌐 Live World Clock</div>
+            <div class="clock-display">
+              <div class="clock-item">
+                <div class="clock-country">
+                  <span class="clock-flag" id="clockFromFlag">🌍</span>
+                  <span class="clock-name" id="clockFromName">Country 1</span>
+                </div>
+                <span class="clock-time" id="clockFromTime">--:--:--</span>
+              </div>
+              <div class="clock-item">
+                <div class="clock-country">
+                  <span class="clock-flag" id="clockToFlag">🌍</span>
+                  <span class="clock-name" id="clockToName">Country 2</span>
+                </div>
+                <span class="clock-time" id="clockToTime">--:--:--</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="statistics-panel">
+            <div class="mini-section-title">📊 Quick Statistics</div>
+            <div class="stat-grid">
+              <div class="stat-item">
+                <span class="stat-icon">📏</span>
+                <span class="stat-label">Distance</span>
+                <span class="stat-value" id="statDistance">-- km</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">⏱️</span>
+                <span class="stat-label">Flight Time</span>
+                <span class="stat-value" id="statFlightTime">-- h</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">🕐</span>
+                <span class="stat-label">Time Gap</span>
+                <span class="stat-value" id="statTimeGap">-- h</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">💱</span>
+                <span class="stat-label">Exchange</span>
+                <span class="stat-value" id="statExchange">--</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="quick-facts">
+            <div class="mini-section-title">💡 Quick Facts</div>
+            <div class="fact-list" id="quickFactsList">
+              <div class="fact-item">
+                <span class="fact-icon">ℹ️</span>
+                <span class="fact-text"
+                  >Select two countries to see interesting facts</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="calculator-widget">
+            <div class="mini-section-title">🧮 Distance Calculator</div>
+            <div class="calculator-grid">
+              <input
+                type="number"
+                id="distanceKm"
+                class="calc-input"
+                value="1000"
+                placeholder="Kilometers"
+              />
+              <span class="calc-operator">≈</span>
+              <input
+                type="number"
+                id="distanceMi"
+                class="calc-input"
+                placeholder="Miles"
+                readonly
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-panel">
+        <div id="result">Select countries to see the connection</div>
+
+        <div class="time-display">
+          <div class="time-box">
+            <div class="time-label" id="fromCountryLabel">From Country</div>
+            <div class="time-value" id="fromCountryInfo">Select a country</div>
+            <div class="country-details" id="fromDetails"></div>
+            <div class="live-time" id="fromTime">--:--:-- --</div>
+          </div>
+          <div class="time-box">
+            <div class="time-label" id="toCountryLabel">To Country</div>
+            <div class="time-value" id="toCountryInfo">Select a country</div>
+            <div class="country-details" id="toDetails"></div>
+            <div class="live-time" id="toTime">--:--:-- --</div>
+          </div>
+          <div class="time-box">
+            <div
+              class="weather-info"
+              id="fromWeather"
+              style="
+                margin-top: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: var(--text-secondary);
+                font-size: 0.9rem;
+              "
+            >
+              <img
+                id="fromWeatherIcon"
+                src=""
+                alt="Weather Icon"
+                style="width: 32px; height: 32px; display: none"
+              />
+              <span id="fromWeatherDesc">Loading weather...</span>
+            </div>
+          </div>
+          <div class="time-box">
+            <div
+              class="weather-info"
+              id="toWeather"
+              style="
+                margin-top: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: var(--text-secondary);
+                font-size: 0.9rem;
+              "
+            >
+              <img
+                id="toWeatherIcon"
+                src=""
+                alt="Weather Icon"
+                style="width: 32px; height: 32px; display: none"
+              />
+              <span id="toWeatherDesc">Loading weather...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flight-info-section" id="flightInfo">
+          <h3 class="section-title">✈️ Flight Information</h3>
+          <div class="flight-details">
+            <div class="flight-detail">
+              <span class="detail-label">Distance</span>
+              <span class="detail-value" id="flightDistance">-- km</span>
+            </div>
+            <div class="flight-detail">
+              <span class="detail-label">Est. Flight Time</span>
+              <span class="detail-value" id="flightTime">--h --m</span>
+            </div>
+            <div class="flight-detail">
+              <span class="detail-label">Time Difference</span>
+              <span class="detail-value" id="timeDifference">--</span>
+            </div>
+            <div class="flight-detail">
+              <span class="detail-label">Route</span>
+              <span class="detail-value" id="flightRoute">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #ef4444"></div>
+            <span>From Country</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #3b82f6"></div>
+            <span>To Country</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #f59e0b"></div>
+            <span>Other Countries</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="currency-panel">
+        <div class="currency-header">
+          <span>Currency Exchange</span>
+        </div>
+
+        <div class="currency-converter">
+          <div class="currency-input-group">
+            <div class="currency-flag" id="fromCurrencyFlag"></div>
+            <input
+              type="number"
+              id="fromAmount"
+              class="currency-input"
+              value="1"
+              min="0"
+              step="0.01"
+              aria-label="Amount in source currency"
+            />
+            <div class="currency-code" id="fromCurrency"></div>
+            <div class="currency-name"></div>
+          </div>
+
+          <div class="exchange-arrow" id="currencySwapBtn" style="cursor: pointer;" title="Swap Currencies">⇄</div>
+
+          <div class="currency-input-group">
+            <div class="currency-flag" id="toCurrencyFlag"></div>
+            <input
+              type="number"
+              id="toAmount"
+              class="currency-input"
+              value="0.00"
+              readonly
+              aria-label="Converted amount in destination currency"
+            />
+            <div class="currency-code" id="toCurrency"></div>
+            <div class="currency-name"></div>
+          </div>
+        </div>
+
+        <div class="currency-details">
+          <div class="currency-detail-box">
+            <div class="time-label">Exchange Rate</div>
+            <div class="exchange-rate" id="currencyComparison">
+              <div class="loading">Loading rate...</div>
+            </div>
+          </div>
+
+          <div class="currency-detail-box">
+            <div class="time-label">Last Updated</div>
+            <div class="exchange-rate" id="lastUpdated">
+              <div class="loading">Loading...</div>
+            </div>
+            <div class="rate-direction">
+              <button id="refreshRates" class="refresh-btn">
+                🔄 Refresh Rates
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="currency-chart-container" style="margin-top: 2rem; background: rgba(255, 255, 255, 0.03); border-radius: 12px; padding: 1rem; border: 1px solid rgba(255, 255, 255, 0.08);">
+            <div class="time-label" style="text-align: center; margin-bottom: 1rem;">30-Day Exchange Rate Trend (Simulated)</div>
+            <canvas id="exchangeRateChart" style="width: 100%; height: 200px;"></canvas>
+        </div>
+
+        <div class="action-buttons">
+          <button
+            id="exportData"
+            class="action-btn"
+            title="Export data"
+            aria-label="Export comparison data"
+          >
+            📥 Export Data
+          </button>
+          <button
+            id="shareLink"
+            class="action-btn"
+            title="Share"
+            aria-label="Share comparison"
+          >
+            🔗 Share
+          </button>
+          <button
+            id="compareHistory"
+            class="action-btn"
+            title="View history"
+            aria-label="View comparison history"
+          >
+            📊 History
+          </button>
+        </div>
+      </div>
+
+      <div class="comparison-table-section">
+        <div class="section-header">
+          <h3 class="section-title" style="margin-bottom: 0;">📊 Comparison Table</h3>
+          <div class="header-actions" style="display: flex; gap: 0.5rem;">
+            <button id="addFromToTable" class="btn-sm btn-primary">➕ Add "From" to Table</button>
+            <button id="addToToTable" class="btn-sm btn-primary">➕ Add "To" to Table</button>
+            <button id="clearTable" class="btn-sm btn-outline">🗑️ Clear Table</button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Country</th>
+                <th>Capital</th>
+                <th>Population</th>
+                <th>Continent</th>
+                <th>Timezone</th>
+                <th>Currency</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="comparisonTableBody">
+              <!-- Content added via JavaScript -->
+            </tbody>
+          </table>
+          <div id="tableEmptyState" class="empty-state">
+            No countries added to comparison. Select a country and click an "Add" button.
+          </div>
+        </div>
+      </div>
+
+      <div class="timezone-converter" id="timezoneConverter">
+        <h3 class="section-title">🕐 Timezone Converter</h3>
+        <div class="converter-grid">
+          <div class="converter-input">
+            <label for="converterTime">Convert Time</label>
+            <input
+              type="time"
+              id="converterTime"
+              class="time-input"
+              aria-label="Time to convert"
+            />
+          </div>
+          <div class="converter-result">
+            <div class="converted-time">
+              <div class="time-zone-result">
+                <span class="zone-label" id="fromZoneLabel">From Zone</span>
+                <span class="zone-time" id="fromZoneTime">--:--</span>
+              </div>
+              <div class="time-zone-result">
+                <span class="zone-label" id="toZoneLabel">To Zone</span>
+                <span class="zone-time" id="toZoneTime">--:--</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://unpkg.com/three"></script>
+    <script src="https://unpkg.com/globe.gl"></script>
+    <script src="web-enhanced.js"></script>
+  </body>
+</html>

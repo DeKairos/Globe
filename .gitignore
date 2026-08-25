@@ -1,0 +1,21 @@
+node_modules/
+dist/
+build/
+.vercel/
+.env
+.env.local
+*.log
+.DS_Store
+*.orig
+*.bak
+coverage/
+.playwright/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
