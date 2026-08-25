@@ -1,0 +1,78 @@
+﻿On branch main
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Changes to be committed:
+	new file:   README.md
+	new file:   ../../app.py
+	new file:   ../../web.html
+	new file:   ../../web.js
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+	both added:      ../../README.md
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	../../.cph/
+	../../.github/
+	../../.venv-win/
+	../../.venv_win/
+	../../.vite/
+	../../A_Sleeping_Through_Classes.py
+	../../Compiler Design(Lex)/
+	../../DAA/
+	../../DS/
+	../../DS2/
+	../../IT Workshop/
+	../../ML/
+	../3d website/
+	../AWS-AI for Bharat/
+	../Classroom/
+	../CodeKalari/
+	FEATURES.md
+	IMPROVEMENTS.md
+	NEW_FEATURES.md
+	QUICKSTART.md
+	SUMMARY.md
+	status_log.txt
+	web-enhanced.js
+	web.html
+	web.js
+	../DBMS/
+	../DS/
+	../Healthcare/
+	../ITW/
+	../package-lock.json
+	../../SIH-25-Mine/
+	../../bsearch.c
+	../../css/
+	../../ex.py
+	../../exam.c
+	../../exam.exe
+	../../filehandling.c
+	../../filehandling.exe
+	../../filehandling.py
+	../../java/
+	../../package-lock.json
+	../../programs.code-workspace
+	../../pyproject.toml
+	../../quicksort.c
+	../../quicksort.exe
+	../../react/
+	../../rustup-init.exe
+	../../s2.c
+	../../s2.exe
+	../../s3.c
+	../../s4.c
+	../../s4.exe
+	../../sample.c
+	../../sample.exe
+	../../snake.c
+	../../snake.exe
+	../../struct1.c
+	../../struct1.exe
+	../../test_tail.js
+	../../tmp-wallpaper.jpg
+

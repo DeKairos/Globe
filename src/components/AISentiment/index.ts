@@ -1,0 +1,1 @@
+export { AISentiment } from './AISentiment';
