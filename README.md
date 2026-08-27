@@ -1,32 +1,100 @@
-# React + TypeScript + Vite
+# Globe Connect
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Interactive 3D WebGL globe for live data exploration. Built with React, Three.js, and TypeScript. Projects real-time data onto a navigable sphere — making datasets feel like places you can explore.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **WebGL Globe Rendering** — Smooth 60 FPS globe using Three.js with custom shaders
+- **Live Data Projection** — REST API integration for real-time data overlay
+- **Interactive Exploration** — Orbit, zoom, and click to inspect data points
+- **Responsive Design** — Works across desktop and mobile viewports
+- **TypeScript** — Full type safety across the codebase
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 18, TypeScript |
+| 3D Rendering | Three.js (r158+) |
+| Build | Vite 5 |
+| Styling | CSS Modules / Tailwind |
+| Data | REST APIs, GeoJSON |
 
-## Expanding the Oxlint configuration
+## Quick Start
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+```bash
+git clone https://github.com/DeKairos/Globe.git
+cd Globe
+npm install
+npm run dev
+```
+
+Opens at `http://localhost:5173`
+
+## Project Structure
+
+```
+globe/
+├── src/
+│   ├── components/
+│   │   ├── Globe.tsx          # Three.js globe component
+│   │   ├── DataLayer.tsx      # Data visualization layer
+│   │   └── Controls.tsx       # UI controls
+│   ├── hooks/
+│   │   └── useGlobe.ts        # Globe lifecycle hook
+│   ├── services/
+│   │   └── api.ts             # Data fetching
+│   ├── types/
+│   │   └── index.ts           # TypeScript types
+│   ├── App.tsx
+│   └── main.tsx
+├── public/
+│   └── textures/              # Globe textures
+├── index.html
+├── package.json
+├── tsconfig.json
+└── vite.config.ts
+```
+
+## Data Format
+
+Expects GeoJSON FeatureCollection:
 
 ```json
 {
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [longitude, latitude]
+      },
+      "properties": {
+        "value": 42,
+        "label": "Sample Point"
+      }
+    }
+  ]
 }
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Customization
+
+| Config | Location |
+|--------|----------|
+| Globe radius | `src/components/Globe.tsx:12` |
+| Color scale | `src/components/DataLayer.tsx:24` |
+| API endpoint | `src/services/api.ts:8` |
+| Camera limits | `src/hooks/useGlobe.ts:15` |
+
+## Deployment
+
+```bash
+npm run build
+# Deploy dist/ to Vercel, Netlify, or GitHub Pages
+```
+
+## License
+
+MIT License
